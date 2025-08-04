@@ -12,14 +12,14 @@ def calculate_moving_averages(df):
         print("Input DataFrame is empty or None.")
         return None
 
-    df['MA50'] = df['price'].rolling(window=50).mean()
-    df['MA200'] = df['price'].rolling(window=200).mean()
+    df['MA50'] = df['price'].rolling(window=50).mean().round(2)
+    df['MA200'] = df['price'].rolling(window=200).mean().round(2)
 
     return df
 
-def calculate_mean_dominance(df):
-    last_50_dominance = df['dominance_percentage'].tail(50)
-    mean_dominance = last_50_dominance.mean()
+def calculate_mean_dominance(df, period=50):
+    last_n_dominance = df['dominance_percentage'].tail(period)
+    mean_dominance = last_n_dominance.mean()
 
     return mean_dominance
 
@@ -38,12 +38,12 @@ def calculate_rsi(df, period=14):
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
 
-    avg_gain = gain.rolling(window=period).mean()
-    avg_loss = loss.rolling(window=period).mean()
+    avg_gain = gain.rolling(window=period).mean().round(2)
+    avg_loss = loss.rolling(window=period).mean().round(2)
 
     rs = avg_gain / avg_loss
-    df['RSI'] = 100 - (100 / (1 + rs))
-    
+    df['RSI'] = round(100 - (100 / (1 + rs)), 2)
+
     return df
 
 def calculate_macd(df, fast=12, slow=26, signal=9):
@@ -59,11 +59,11 @@ def calculate_macd(df, fast=12, slow=26, signal=9):
     Returns:
     - DataFrame with 'MACD' and 'Signal_Line' columns added.
     """
-    ema_fast = df['price'].ewm(span=fast, adjust=False).mean()
-    ema_slow = df['price'].ewm(span=slow, adjust=False).mean()
+    ema_fast = df['price'].ewm(span=fast, adjust=False).mean().round(2)
+    ema_slow = df['price'].ewm(span=slow, adjust=False).mean().round(2)
 
-    df['MACD'] = ema_fast - ema_slow
-    df['Signal_Line'] = df['MACD'].ewm(span=signal, adjust=False).mean()
+    df['MACD'] = round(ema_fast - ema_slow, 2)
+    df['Signal_Line'] = df['MACD'].ewm(span=signal, adjust=False).mean().round(2)
 
     return df
 
@@ -75,4 +75,4 @@ def calculate_purchase_amount(data,historical_data):
 
     purchase = 100 * (ma200 / current_price) * (dom200/current_dominance)
 
-    return round(purchase, 2)
+    return int(purchase)

@@ -1,14 +1,12 @@
 import requests
-import json
 import pandas as pd
-from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
 import csv
 import os
 
-
+BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
 BASE_URL = "https://api.coingecko.com/api/v3"
-SAVE_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
+
 
 def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
     """Get current Bitcoin price and market dominance"""
@@ -43,10 +41,10 @@ def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
             'cryptocurrency': id,
             'symbol': symbol,
             'current_price': current_price,
-            'current_dominance': current_btc_dominance,
-            'usd_market_cap': usd_market_cap,
-            'usd_24h_vol': usd_24h_vol,
-            'usd_24h_change': usd_24h_change
+            'current_dominance': round(current_btc_dominance, 2),
+            'usd_market_cap': round(usd_market_cap, 2),
+            'usd_24h_vol': round(usd_24h_vol, 2),
+            'usd_24h_change': round(usd_24h_change, 2)
         }
 
         return data
@@ -55,13 +53,13 @@ def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
         print(f"Error fetching current data: {e}")
         return None
     
-def get_historical_price_data(days=200):
+def get_historical_price_data(days=300):
     """Get historical Bitcoin price data for moving average calculation"""
     try:
         url = f"{BASE_URL}/coins/bitcoin/market_chart"
         params = {
             'vs_currency': 'usd',
-            'days': days + 10,  # Get a few extra days to ensure we have enough data
+            'days': days + 10, 
             'interval': 'daily'
         }
         
@@ -76,6 +74,7 @@ def get_historical_price_data(days=200):
         df['date'] = pd.to_datetime(df['timestamp'], unit='ms')
         df = df.drop('timestamp', axis=1)
         df = df.set_index('date')
+        df['price']= df['price'].astype(int)
         
         return df
         
@@ -105,11 +104,11 @@ def save_data_to_csv(filename, data):
     # Prepare the data row as a dictionary
     data_row = {
         'date': datetime.now(timezone(timedelta(hours=2))).strftime('%Y-%m-%d %H:%M:%S'),
-        'current_price': data.get('current_price', 0),
-        'dominance_percentage': data.get('current_dominance', 0),
-        'market_cap_usd': data.get('usd_market_cap', 0),
-        '24h_volume_usd': data.get('usd_24h_vol', 0),
-        '24h_change_percentage': data.get('usd_24h_change', 0)
+        'current_price': round(data.get('current_price', 0), 2),
+        'dominance_percentage': round(data.get('current_dominance', 0), 2),
+        'market_cap_usd': round(data.get('usd_market_cap', 0), 2),
+        '24h_volume_usd': round(data.get('usd_24h_vol', 0), 2),
+        '24h_change_percentage': round(data.get('usd_24h_change', 0), 2)
     }
     
     try:
@@ -136,11 +135,4 @@ def save_data_to_csv(filename, data):
 
 if __name__ == "__main__":
     current_data = get_current_price_and_dominance()
-    save_data_to_csv(SAVE_PATH, current_data)
-    
-    # historical_data = get_historical_price_data()
-
-    # if historical_data is not None:
-    #     historical_data = calculate_moving_averages(historical_data)
-    #     historical_data = calculate_macd(historical_data)
-    #     historical_data = calculate_rsi(historical_data)
+    save_data_to_csv(BTC_DATA_PATH, current_data)    
