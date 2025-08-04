@@ -1,8 +1,10 @@
-LAST_N_DAYS=30
+LAST_N_DAYS=15
 BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
 HISTORICAL_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/historical_data.csv"
 
 AZURE_MODEL_ID = "gpt-4o"
+TEMPERATURE = 0.3
+TOP_P = 0.7
 SYSTEM_MESSAGE = """
     You are a seasoned crypto trading expert. Your role is to provide **detailed, actionable advice**
     based on the latest **market trends and historical data**.

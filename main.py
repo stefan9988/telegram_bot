@@ -26,7 +26,7 @@ if historical_data is not None:
     historical_data = calculate_moving_averages(historical_data)
     historical_data = calculate_macd(historical_data)
     historical_data = calculate_rsi(historical_data)    
-    historical_data.to_csv(config.HISTORICAL_DATA_PATH, index=False)
+    historical_data.to_csv(config.HISTORICAL_DATA_PATH)
 else:
     historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
 
@@ -53,6 +53,8 @@ chat_instance = AzureChat(
             api_key = AZURE_OPENAI_API_KEY,
             azure_endpoint = AZURE_OPENAI_ENDPOINT,
             system_message = config.SYSTEM_MESSAGE,
+            temperature= config.TEMPERATURE,
+            top_p = config.TOP_P,
         )
 
 response, usage = chat_instance.conv(message)
