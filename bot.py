@@ -7,15 +7,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-YOUR_USER_ID = int(os.getenv("YOUR_USER_ID"))
+YOUR_USER_ID = int(os.getenv("YOUR_USER_ID", "0"))
 
-async def send_message_and_exit():
+async def send_message_and_exit(msg):
     bot = Bot(token=BOT_TOKEN)
     
     try:
         await bot.send_message(
             chat_id=YOUR_USER_ID,
-            text=f"Script executed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            text= msg
         )
         print("Message sent successfully!")
     except Exception as e:
@@ -24,4 +24,4 @@ async def send_message_and_exit():
         await bot.close()
 
 if __name__ == "__main__":
-    asyncio.run(send_message_and_exit())
+    asyncio.run(send_message_and_exit('HI'))
