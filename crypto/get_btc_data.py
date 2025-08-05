@@ -4,9 +4,7 @@ from datetime import datetime, timedelta, timezone
 import csv
 import os
 
-BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
 BASE_URL = "https://api.coingecko.com/api/v3"
-
 
 def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
     """Get current Bitcoin price and market dominance"""
@@ -73,7 +71,6 @@ def get_historical_price_data(days=300):
         df = pd.DataFrame(prices, columns=['timestamp', 'price'])
         df['date'] = pd.to_datetime(df['timestamp'], unit='ms')
         df = df.drop('timestamp', axis=1)
-        df = df.set_index('date')
         df['price']= df['price'].astype(int)
         
         return df
@@ -132,7 +129,3 @@ def save_data_to_csv(filename, data):
         print(f"Error writing to file {filename}: {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-
-if __name__ == "__main__":
-    current_data = get_current_price_and_dominance()
-    save_data_to_csv(BTC_DATA_PATH, current_data)    

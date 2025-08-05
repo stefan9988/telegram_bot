@@ -5,7 +5,8 @@ import config
 from bot import send_telegram_message, send_telegram_photo
 import asyncio
 
-from crypto.get_btc_data import get_historical_price_data
+from crypto.get_btc_data import get_historical_price_data, get_current_price_and_dominance, save_data_to_csv
+from crypto.data_visualisation import plot_crypto_indicators
 from crypto.calculations import calculate_macd, calculate_moving_averages, calculate_purchase_amount
 from crypto.calculations import calculate_mean_dominance, calculate_rsi, calculate_bollinger_bands
 from openAI import AzureChat
@@ -21,7 +22,6 @@ if not AZURE_OPENAI_API_KEY or not AZURE_OPENAI_ENDPOINT:
     raise ValueError("Required environment variables are not set")
 
 historical_data = get_historical_price_data()
-
 if historical_data is not None:
     historical_data = calculate_moving_averages(historical_data)
     historical_data = calculate_macd(historical_data)
@@ -29,9 +29,26 @@ if historical_data is not None:
     historical_data = calculate_bollinger_bands(historical_data)    
     historical_data.to_csv(config.HISTORICAL_DATA_PATH)
 else:
-    historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
+    asyncio.run(send_telegram_message(
+        msg="Failed to fetch historical Bitcoin data.",
+        bot_token=BOT_TOKEN,
+        user_id=TELEGRAM_USER_ID
+    ))
+    exit(1)
 
-btc_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
+plot_crypto_indicators(historical_data, last_n_days=50, savepath=config.CRYPTO_INDICATORS_PATH)
+
+btc_data = get_current_price_and_dominance()
+if btc_data is None:
+    asyncio.run(send_telegram_message(
+        msg="Failed to fetch current Bitcoin data.",
+        bot_token=BOT_TOKEN,
+        user_id=TELEGRAM_USER_ID
+    ))
+    exit(1)
+else:
+    save_data_to_csv(config.BTC_DATA_PATH, btc_data)    
+
 btc_mean_dominance = calculate_mean_dominance(btc_data)
 
 message = f"""
@@ -72,4 +89,9 @@ asyncio.run(send_telegram_message(
     bot_token=BOT_TOKEN,
     user_id=TELEGRAM_USER_ID
 ))
-asyncio.run(send_telegram_photo("data/crypto_indicators.png", "Crypto Indicators", BOT_TOKEN, TELEGRAM_USER_ID))
+asyncio.run(send_telegram_photo(
+    image_path=config.CRYPTO_INDICATORS_PATH, 
+    caption="Crypto Indicators", 
+    bot_token=BOT_TOKEN, 
+    user_id=TELEGRAM_USER_ID
+))

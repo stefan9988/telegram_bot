@@ -77,6 +77,3 @@ def plot_crypto_indicators(df, last_n_days=None, savepath="crypto_indicators.png
 
     plt.tight_layout()
     plt.show()
-
-df = pd.read_csv("/home/stefandragicevic/telegram_bot/data/historical_data.csv", index_col=False)
-plot_crypto_indicators(df, last_n_days=50, savepath="data/crypto_indicators.png")
