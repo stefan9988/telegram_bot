@@ -29,11 +29,12 @@ chat_instance = AzureChat(
             temperature= config.TEMPERATURE,
             top_p = config.TOP_P,
         )
-
+#Load data
 btc_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
 historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
 df_ohcl = pd.read_csv(config.OHLC_DATA_PATH, index_col=False)
 
+# Perform technical analysis
 ma_analysis = analyze_moving_averages(historical_data, window=config.WINDOW)
 macd_analysis = analyze_macd(historical_data, window=config.WINDOW)
 rsi_analysis = analyze_rsi(historical_data, window=config.WINDOW)
@@ -44,6 +45,7 @@ market_regime_analysis = analyze_market_regime(df_ohcl)
 ta = ma_analysis + "\n" + macd_analysis + "\n" + rsi_analysis + "\n" + bollinger_analysis + "\n" + \
     volume_analysis + "\n" + market_regime_analysis
 
+# Create message for Azure OpenAI
 message = chat_instance.create_msg(
     historical_data=historical_data,
     btc_data=btc_data,
