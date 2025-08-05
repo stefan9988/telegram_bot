@@ -1,6 +1,6 @@
-LAST_N_DAYS=15
 BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
 HISTORICAL_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/historical_data.csv"
+LAST_N_DAYS=15
 
 AZURE_MODEL_ID = "gpt-4o"
 TEMPERATURE = 0.3

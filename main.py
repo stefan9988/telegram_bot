@@ -2,12 +2,12 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 import config
-from bot import send_telegram_message
+from bot import send_telegram_message, send_telegram_photo
 import asyncio
 
 from crypto.get_btc_data import get_historical_price_data
 from crypto.calculations import calculate_macd, calculate_moving_averages, calculate_purchase_amount
-from crypto.calculations import calculate_mean_dominance, calculate_rsi
+from crypto.calculations import calculate_mean_dominance, calculate_rsi, calculate_bollinger_bands
 from openAI import AzureChat
 
 load_dotenv(override=True)
@@ -25,7 +25,8 @@ historical_data = get_historical_price_data()
 if historical_data is not None:
     historical_data = calculate_moving_averages(historical_data)
     historical_data = calculate_macd(historical_data)
-    historical_data = calculate_rsi(historical_data)    
+    historical_data = calculate_rsi(historical_data)
+    historical_data = calculate_bollinger_bands(historical_data)    
     historical_data.to_csv(config.HISTORICAL_DATA_PATH)
 else:
     historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
@@ -71,3 +72,4 @@ asyncio.run(send_telegram_message(
     bot_token=BOT_TOKEN,
     user_id=TELEGRAM_USER_ID
 ))
+asyncio.run(send_telegram_photo("data/crypto_indicators.png", "Crypto Indicators", BOT_TOKEN, TELEGRAM_USER_ID))

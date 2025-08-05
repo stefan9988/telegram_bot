@@ -67,6 +67,30 @@ def calculate_macd(df, fast=12, slow=26, signal=9):
 
     return df
 
+def calculate_bollinger_bands(df, window=20, num_std_dev=2):
+    """
+    Adds Bollinger Bands columns to a DataFrame.
+    
+    Args:
+        df (pd.DataFrame): Must contain a 'price' column.
+        window (int): Period for SMA and StdDev.
+        num_std_dev (int): Number of standard deviations.
+    
+    Returns:
+        pd.DataFrame: DataFrame with 'bollinger_mid', 'bollinger_upper', 'bollinger_lower' columns.
+    """
+    df = df.copy()
+    df['bollinger_mid'] = df['price'].rolling(window).mean().round(2)
+    df['bollinger_std'] = df['price'].rolling(window).std().round(2)
+
+    df['bollinger_upper'] = df['bollinger_mid'] + num_std_dev * df['bollinger_std']
+    df['bollinger_lower'] = df['bollinger_mid'] - num_std_dev * df['bollinger_std']
+
+    df['bollinger_upper'] = df['bollinger_upper'].round(2)
+    df['bollinger_lower'] = df['bollinger_lower'].round(2)
+
+    return df
+
 def calculate_purchase_amount(data,historical_data):
     ma200 = historical_data['MA200'].iloc[-1]
     current_price = historical_data['price'].iloc[-1]
