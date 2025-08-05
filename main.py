@@ -36,10 +36,10 @@ else:
     ))
     exit(1)
 
-plot_crypto_indicators(historical_data, last_n_days=50, savepath=config.CRYPTO_INDICATORS_PATH)
+plot_crypto_indicators(historical_data, last_n_days=config.LAST_N_DAYS, savepath=config.CRYPTO_INDICATORS_PATH)
 
-btc_data = get_current_price_and_dominance()
-if btc_data is None:
+current_data = get_current_price_and_dominance()
+if current_data is None:
     asyncio.run(send_telegram_message(
         msg="Failed to fetch current Bitcoin data.",
         bot_token=BOT_TOKEN,
@@ -47,24 +47,10 @@ if btc_data is None:
     ))
     exit(1)
 else:
-    save_data_to_csv(config.BTC_DATA_PATH, btc_data)    
+    save_data_to_csv(config.BTC_DATA_PATH, current_data)    
 
+btc_data = pd.read_csv(config.BTC_DATA_PATH)
 btc_mean_dominance = calculate_mean_dominance(btc_data)
-
-message = f"""
-    Analyze the following Bitcoin market data and return a trading strategy with clear buy/sell signals, 
-    technical justification, and a risk assessment.
-
-    Below is the recent historical price data with calculated technical indicators (moving averages, MACD, RSI):
-
-    HISTORICAL_DATA:
-    {historical_data.tail(config.LAST_N_DAYS).to_dict(orient="records")}
-
-    Current market snapshot:
-
-    BTC_DATA:
-    {btc_data.tail(config.LAST_N_DAYS).to_dict(orient="records")}"""
-
 
 chat_instance = AzureChat(
             model_id = config.AZURE_MODEL_ID,
@@ -75,6 +61,11 @@ chat_instance = AzureChat(
             top_p = config.TOP_P,
         )
 
+message = chat_instance.create_msg(
+    historical_data=historical_data,
+    btc_data=btc_data,
+    last_n_days=config.LAST_N_DAYS
+)
 response, usage = chat_instance.conv(message)
 current_price = btc_data['current_price'].iloc[-1]
 purchase_amount = calculate_purchase_amount(btc_data,historical_data)

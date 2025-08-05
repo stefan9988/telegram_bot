@@ -3,6 +3,7 @@ from typing import Optional, Dict, Any, Tuple, List
 import time
 import random
 import logging
+import pandas as pd
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -143,4 +144,23 @@ class AzureChat:
                     raise Exception(f"Unexpected error after {max_retries} retries in conversation with Azure OpenAI model: {str(e)}") from e
         
         raise Exception("Conversation failed unexpectedly after all retries.")
-    
+
+    def create_msg(self,historical_data: pd.DataFrame, btc_data: pd.DataFrame, last_n_days: int) -> str:
+        """
+        Create a message for the Azure OpenAI model based on historical and current BTC data.
+        """
+        message = f"""
+            Analyze the following Bitcoin market data and return a trading strategy with clear buy/sell signals, 
+            technical justification, and a risk assessment.
+
+            Below is the recent historical price data with calculated technical indicators (MA, MACD, RSI):
+
+            HISTORICAL_DATA:
+            {historical_data.tail(last_n_days).to_dict(orient="records")}
+
+            Current market snapshot:
+
+            BTC_DATA:
+            {btc_data.tail(last_n_days).to_dict(orient="records")}"""
+
+        return message

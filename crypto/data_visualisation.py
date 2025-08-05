@@ -75,5 +75,5 @@ def plot_crypto_indicators(df, last_n_days=None, savepath="crypto_indicators.png
 
     plt.savefig(savepath, dpi=300, bbox_inches='tight', facecolor='black')
 
-    plt.tight_layout()
-    plt.show()
+    # plt.tight_layout()
+    # plt.show()
