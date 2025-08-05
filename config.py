@@ -1,7 +1,9 @@
 BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
 HISTORICAL_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/historical_data.csv"
 CRYPTO_INDICATORS_PATH = "data/crypto_indicators.png"
+OHLC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/ohlc_data.csv"
 LAST_N_DAYS=15
+WINDOW = 15
 
 AZURE_MODEL_ID = "gpt-4o"
 TEMPERATURE = 0.3
@@ -13,6 +15,7 @@ SYSTEM_MESSAGE = """
     You will be given:
     - Historical price and volume data
     - Current market conditions and indicators (e.g., RSI, MACD, moving averages)
+    - Technical analysis results
 
     Your responsibilities:
     - Analyze the provided data and generate a **clear trading strategy**

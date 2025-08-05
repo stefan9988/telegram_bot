@@ -145,7 +145,7 @@ class AzureChat:
         
         raise Exception("Conversation failed unexpectedly after all retries.")
 
-    def create_msg(self,historical_data: pd.DataFrame, btc_data: pd.DataFrame, last_n_days: int) -> str:
+    def create_msg(self,historical_data: pd.DataFrame, btc_data: pd.DataFrame, ta: str, last_n_days: int) -> str:
         """
         Create a message for the Azure OpenAI model based on historical and current BTC data.
         """
@@ -161,6 +161,9 @@ class AzureChat:
             Current market snapshot:
 
             BTC_DATA:
-            {btc_data.tail(last_n_days).to_dict(orient="records")}"""
+            {btc_data.tail(last_n_days).to_dict(orient="records")}
+
+            Technical Analysis Summary:
+            {ta}"""
 
         return message

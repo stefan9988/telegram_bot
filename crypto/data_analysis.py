@@ -1,13 +1,5 @@
+import pandas_ta as ta
 import pandas as pd
-import sys
-import os
-
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import config
-#TODO remove this import
-df = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
 
 def analyze_moving_averages(df, window=3):
     """Check recent trend in MA50 vs MA200 over a few days"""
@@ -84,9 +76,65 @@ def analyze_bollinger(df, window=3):
     else:
         return "Price within Bollinger Bands (Normal)"
 
+def analyze_volume(df, ma_period=20, spike_multiplier=1.5):
+    """
+    Analyzes the most recent volume against its moving average.
+    A price move on high volume is more significant than one on low volume.
+    """
+    df_copy = df.copy()
+    volume_ma_col = f'volume_ma_{ma_period}'
+    df_copy[volume_ma_col] = df_copy['volume'].rolling(window=ma_period).mean()
+    
+    recent = df_copy.iloc[-1]
+    
+    if pd.isna(recent[volume_ma_col]):
+        return "Volume (Not enough data)"
+        
+    volume = recent['volume']
+    volume_ma = recent[volume_ma_col]
+    
+    if volume > volume_ma * spike_multiplier:
+        return f"High Volume Spike ({volume/volume_ma:.1f}x average)"
+    elif volume > volume_ma:
+        return "Above Average Volume"
+    else:
+        return "Below Average Volume"
 
-
-print(analyze_moving_averages(df))
-print(analyze_macd(df))
-print(analyze_rsi(df))
-print(analyze_bollinger(df))
+def analyze_market_regime(df, adx_period=14):
+    """
+    Determines if the market is trending or ranging using the ADX.
+    - ADX > 25: Trending market (strong)
+    - ADX < 20: Ranging market (weak or no trend)
+    - Direction is determined by comparing DMP and DMN lines.
+    """
+    df_copy = df.copy()
+    
+    df_copy.ta.adx(
+        high=df_copy['high'], 
+        low=df_copy['low'],
+        close=df_copy['close'],
+        length=adx_period, 
+        append=True
+    )
+    
+    adx_col = f'ADX_{adx_period}'
+    dmp_col = f'DMP_{adx_period}' 
+    dmn_col = f'DMN_{adx_period}' 
+    
+    # Handle cases where there isn't enough data
+    if adx_col not in df_copy.columns or df_copy[adx_col].isna().all():
+        return "Regime (Not enough data)"
+        
+    recent_adx = df_copy[adx_col].iloc[-1]
+    recent_dmp = df_copy[dmp_col].iloc[-1]
+    recent_dmn = df_copy[dmn_col].iloc[-1]
+    
+    if recent_adx > 25:
+        if recent_dmp > recent_dmn:
+            return f"Strong Bullish Trend (ADX: {recent_adx:.1f})"
+        else:
+            return f"Strong Bearish Trend (ADX: {recent_adx:.1f})"
+    elif recent_adx < 20:
+        return f"Sideways / Ranging Market (ADX: {recent_adx:.1f})"
+    else: # ADX is between 20 and 25
+        return f"Neutral / Trend Developing (ADX: {recent_adx:.1f})"

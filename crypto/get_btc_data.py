@@ -52,33 +52,82 @@ def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
         return None
     
 def get_historical_price_data(days=300):
-    """Get historical Bitcoin price data for moving average calculation"""
+    """Get historical Bitcoin price and volume data."""
     try:
         url = f"{BASE_URL}/coins/bitcoin/market_chart"
         params = {
             'vs_currency': 'usd',
-            'days': days + 10, 
+            'days': days, # No need to add 10 here, the API handles the range
             'interval': 'daily'
         }
         
         response = requests.get(url, params=params)
-        response.raise_for_status()
+        response.raise_for_status() # Raises an exception for bad status codes (4xx or 5xx)
         
         data = response.json()
+        
+        # 1. Extract both prices and total_volumes
         prices = data['prices']
+        volumes = data['total_volumes']
+
+        # 2. Create separate DataFrames for each
+        df_price = pd.DataFrame(prices, columns=['timestamp', 'price'])
+        df_volume = pd.DataFrame(volumes, columns=['timestamp', 'volume'])
         
-        # Convert to DataFrame
-        df = pd.DataFrame(prices, columns=['timestamp', 'price'])
+        # 3. Merge them on the timestamp
+        df = pd.merge(df_price, df_volume, on='timestamp')
+        
+        # Convert timestamp to a readable date format
         df['date'] = pd.to_datetime(df['timestamp'], unit='ms')
-        df = df.drop('timestamp', axis=1)
-        df['price']= df['price'].astype(int)
         
+        # Drop the now redundant timestamp column
+        df = df.drop('timestamp', axis=1)
+
+        # A small improvement: Use float for price to keep decimal precision
+        df['price'] = df['price'].astype(float).round(2)
+        df['volume'] = df['volume'].astype(float).round(2)
+
         return df
         
     except requests.RequestException as e:
-        print(f"Error fetching historical price data: {e}")
+        print(f"Error fetching historical data: {e}")
         return None
-    
+
+def get_historical_ohlc_data(coin_id='bitcoin', days=300):
+    """
+    Get historical Open, High, Low, Close (OHLC) data for a specific coin.
+    This function provides the daily high and low prices.
+    """
+    try:
+        url = f"{BASE_URL}/coins/{coin_id}/ohlc"
+        params = {
+            'vs_currency': 'usd',
+            'days': days,
+        }
+        
+        response = requests.get(url, params=params)
+        response.raise_for_status()  
+        
+        data = response.json()
+        
+        df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close'])
+        
+        df['date'] = pd.to_datetime(df['timestamp'], unit='ms')
+                
+        df = df.drop('timestamp', axis=1)
+        
+        for col in ['open', 'high', 'low', 'close']:
+            df[col] = df[col].astype(float).round(2)
+
+        return df
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred with the API request: {e}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
+
 def save_data_to_csv(filename, data):
     """
     Appends a new row of Bitcoin data to a CSV file.
