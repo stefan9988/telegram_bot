@@ -6,7 +6,7 @@ from crypto.calculations import calculate_rsi, calculate_bollinger_bands
 import config
 import os
 from dotenv import load_dotenv
-from bot import send_telegram_message
+from telegram_service.bot import send_telegram_message
 import asyncio
 
 load_dotenv(override=True)
