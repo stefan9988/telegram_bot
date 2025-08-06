@@ -5,3 +5,4 @@ __pycache__/
 data/
 crypto/cron.log
 cron.log
+reports/

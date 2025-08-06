@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import os
 import asyncio
@@ -44,6 +45,32 @@ def get_llm_instance():
         )
     else:
         raise ValueError(f"Unknown LLM_PROVIDER: {config.LLM_PROVIDER}")
+
+def save_message_to_daily_log(msg: str, log_directory: str):
+    """
+    Constructs a message and appends it to a log file named with the current date.
+
+    Args:
+        msg (str): The message to log.
+        log_directory (str): The directory where log files will be saved.
+    """
+    # --- 1. Create the log directory if it doesn't exist ---
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+        print(f"Created directory: {log_directory}")
+
+    # --- 2. Generate the filename based on the current date ---
+    # e.g., 'report_2023-10-27.txt'
+    current_date = datetime.date.today().strftime("%Y-%m-%d")
+    filename = os.path.join(log_directory, f"report_{current_date}.txt")
+
+    # --- 4. Open the file in 'write' mode and write the message ---
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(msg)
+        print(f"Successfully wrote message to '{filename}'")
+    except IOError as e:
+        print(f"Error: Could not write to file '{filename}'. Reason: {e}")
 
 # --- Main Asynchronous Logic ---
 async def main():
@@ -113,7 +140,8 @@ async def main():
         f"**Suggested Purchase:** ${purchase_amount:,.2f}\n\n"
         f"--- Technical Analysis Summary ---\n{ta}"
     )
-
+    save_message_to_daily_log(final_message, "reports")
+    
     # --- Send Notifications (within the same async context) ---
     print("Sending notifications to Telegram...")
     # These two tasks will run sequentially.
@@ -126,7 +154,6 @@ async def main():
     print("Notifications sent.")
 
 
-# --- Entry Point ---
 if __name__ == "__main__":
     # Run the entire async main function once.
     asyncio.run(main())
