@@ -5,9 +5,9 @@ OHLC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/ohlc_data.csv"
 LAST_N_DAYS=15
 WINDOW = 15
 
-LLM_PROVIDER = "OPEN_ROUTER" # Options: "AZURE", "OPEN_ROUTER"
+LLM_PROVIDER = "AZURE" # Options: "AZURE", "OPEN_ROUTER"
 AZURE_MODEL_ID = "gpt-4o"
-OPEN_ROUTER_MODEL_ID = "qwen/qwen3-235b-a22b:free" # "deepseek/deepseek-chat-v3-0324:free"
+OPEN_ROUTER_MODEL_ID = "deepseek/deepseek-chat-v3-0324:free"
 TEMPERATURE = 0.3
 TOP_P = 0.7
 SYSTEM_MESSAGE = """
