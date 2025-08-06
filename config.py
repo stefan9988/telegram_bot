@@ -6,6 +6,7 @@ LAST_N_DAYS=15
 WINDOW = 15
 
 AZURE_MODEL_ID = "gpt-4o"
+OPEN_ROUTER_MODEL_ID = "deepseek/deepseek-chat-v3-0324:free"
 TEMPERATURE = 0.3
 TOP_P = 0.7
 SYSTEM_MESSAGE = """

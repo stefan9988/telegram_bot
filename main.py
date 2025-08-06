@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from LLMs.utils import create_trading_prompt
 import config
 from bot import send_telegram_message, send_telegram_photo
 from crypto.data_analysis import analyze_bollinger, analyze_macd, analyze_moving_averages
@@ -9,12 +10,14 @@ import asyncio
 
 from crypto.calculations import calculate_purchase_amount
 
-from openAI import AzureChat
+from LLMs.openAI import AzureChat
+from LLMs.openRouter import OpenRouterLLM
 
 load_dotenv(override=True)
 
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 
@@ -29,6 +32,14 @@ chat_instance = AzureChat(
             temperature= config.TEMPERATURE,
             top_p = config.TOP_P,
         )
+# chat_instance = OpenRouterLLM(
+#             api_key=OPEN_ROUTER_API_KEY,
+#             model_id=config.OPEN_ROUTER_MODEL_ID,
+#             system_message=config.SYSTEM_MESSAGE,
+#             temperature=config.TEMPERATURE,
+#             top_p=config.TOP_P
+#         )
+
 #Load data
 btc_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
 historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
@@ -45,8 +56,8 @@ market_regime_analysis = analyze_market_regime(df_ohcl)
 ta = ma_analysis + "\n" + macd_analysis + "\n" + rsi_analysis + "\n" + bollinger_analysis + "\n" + \
     volume_analysis + "\n" + market_regime_analysis
 
-# Create message for Azure OpenAI
-message = chat_instance.create_msg(
+# Create message for LLM
+message = create_trading_prompt(
     historical_data=historical_data,
     btc_data=btc_data,
     ta=ta,
