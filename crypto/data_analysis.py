@@ -8,15 +8,15 @@ def analyze_moving_averages(df, window=3):
     death_cross_days = (recent['MA50'] < recent['MA200']).sum()
 
     if golden_cross_days == window:
-        return f"Consistent Uptrend (Golden Cross for {window} days)"
+        return f"Consistent Uptrend (Golden Cross for {window} days) 🟢"
     elif death_cross_days == window:
-        return f"Consistent Downtrend (Death Cross for {window} days)"
+        return f"Consistent Downtrend (Death Cross for {window} days) 🔴"
     elif recent.iloc[-1]['MA50'] > recent.iloc[-1]['MA200']:
-        return "MA50 just crossed above MA200 (Potential Golden Cross)"
+        return "MA50 just crossed above MA200 (Potential Golden Cross) 🟢"
     elif recent.iloc[-1]['MA50'] < recent.iloc[-1]['MA200']:
-        return "MA50 just crossed below MA200 (Potential Death Cross)"
+        return "MA50 just crossed below MA200 (Potential Death Cross) 🔴"
     else:
-        return "MAs are converging (Unclear trend)"
+        return "MAs are converging (Unclear trend) ⚪"
 
 
 def analyze_macd(df, window=3):
@@ -29,16 +29,16 @@ def analyze_macd(df, window=3):
         curr = recent.iloc[i]
 
         if prev['MACD'] < prev['Signal_Line'] and curr['MACD'] > curr['Signal_Line']:
-            signals.append("Bullish crossover")
+            signals.append("Bullish crossover 🟢")
         elif prev['MACD'] > prev['Signal_Line'] and curr['MACD'] < curr['Signal_Line']:
-            signals.append("Bearish crossover")
+            signals.append("Bearish crossover 🔴")
 
     if signals:
         return f"MACD Crossovers Detected: {', '.join(signals)}"
     elif recent.iloc[-1]['MACD'] > recent.iloc[-1]['Signal_Line']:
-        return "MACD shows bullish momentum"
+        return "MACD shows bullish momentum 🟢"
     else:
-        return "MACD shows bearish momentum"
+        return "MACD shows bearish momentum 🔴"
 
 
 def analyze_rsi(df, overbought=70, oversold=30, window=3):
@@ -48,15 +48,15 @@ def analyze_rsi(df, overbought=70, oversold=30, window=3):
     oversold_days = (recent_rsi < oversold).sum()
 
     if overbought_days == window:
-        return f"RSI consistently overbought ({recent_rsi.iloc[-1]:.2f})"
+        return f"RSI consistently overbought ({recent_rsi.iloc[-1]:.2f}) 🔴"
     elif oversold_days == window:
-        return f"RSI consistently oversold ({recent_rsi.iloc[-1]:.2f})"
+        return f"RSI consistently oversold ({recent_rsi.iloc[-1]:.2f}) 🟢"
     elif recent_rsi.iloc[-1] > overbought:
-        return f"RSI just entered overbought ({recent_rsi.iloc[-1]:.2f})"
+        return f"RSI just entered overbought ({recent_rsi.iloc[-1]:.2f}) 🔴"
     elif recent_rsi.iloc[-1] < oversold:
-        return f"RSI just entered oversold ({recent_rsi.iloc[-1]:.2f})"
+        return f"RSI just entered oversold ({recent_rsi.iloc[-1]:.2f}) 🟢"
     else:
-        return f"RSI neutral range ({recent_rsi.iloc[-1]:.2f})"
+        return f"RSI neutral range ({recent_rsi.iloc[-1]:.2f}) ⚪"
 
 
 def analyze_bollinger(df, window=3):
@@ -66,15 +66,15 @@ def analyze_bollinger(df, window=3):
     below_lower = (recent['price'] < recent['bollinger_lower']).sum()
 
     if above_upper == window:
-        return f"Price consistently above upper band ({window} days) → Overbought"
+        return f"Price consistently above upper band ({window} days) → Overbought 🔴"
     elif below_lower == window:
-        return f"Price consistently below lower band ({window} days) → Oversold"
+        return f"Price consistently below lower band ({window} days) → Oversold 🟢"
     elif recent.iloc[-1]['price'] > recent.iloc[-1]['bollinger_upper']:
-        return "Price just broke above upper band → Overbought"
+        return "Price just broke above upper band → Overbought 🔴"
     elif recent.iloc[-1]['price'] < recent.iloc[-1]['bollinger_lower']:
-        return "Price just broke below lower band → Oversold"
+        return "Price just broke below lower band → Oversold 🟢"
     else:
-        return "Price within Bollinger Bands (Normal)"
+        return "Price within Bollinger Bands (Normal) ⚪"
 
 def analyze_volume(df, ma_period=20, spike_multiplier=1.5):
     """
@@ -94,11 +94,11 @@ def analyze_volume(df, ma_period=20, spike_multiplier=1.5):
     volume_ma = recent[volume_ma_col]
     
     if volume > volume_ma * spike_multiplier:
-        return f"High Volume Spike ({volume/volume_ma:.1f}x average)"
+        return f"High Volume Spike ({volume/volume_ma:.1f}x average) 🟢"
     elif volume > volume_ma:
-        return "Above Average Volume"
+        return "Above Average Volume 🟢"
     else:
-        return "Below Average Volume"
+        return "Below Average Volume 🔴"
 
 def analyze_market_regime(df, adx_period=14):
     """
@@ -131,10 +131,10 @@ def analyze_market_regime(df, adx_period=14):
     
     if recent_adx > 25:
         if recent_dmp > recent_dmn:
-            return f"Strong Bullish Trend (ADX: {recent_adx:.1f})"
+            return f"Strong Bullish Trend (ADX: {recent_adx:.1f}) 🟢"
         else:
-            return f"Strong Bearish Trend (ADX: {recent_adx:.1f})"
+            return f"Strong Bearish Trend (ADX: {recent_adx:.1f}) 🔴"
     elif recent_adx < 20:
-        return f"Sideways / Ranging Market (ADX: {recent_adx:.1f})"
+        return f"Sideways / Ranging Market (ADX: {recent_adx:.1f}) ⚪"
     else: # ADX is between 20 and 25
-        return f"Neutral / Trend Developing (ADX: {recent_adx:.1f})"
+        return f"Neutral / Trend Developing (ADX: {recent_adx:.1f}) ⚪"
