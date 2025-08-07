@@ -14,7 +14,7 @@ from crypto.calculations import (
 )
 
 from crypto.data_visualisation import plot_crypto_indicators
-import config
+import crypto_config
 import os
 from dotenv import load_dotenv
 from telegram_service.bot import TelegramNotifier
@@ -46,19 +46,19 @@ current_data = get_current_price_and_dominance()
 if current_data is None:
     notify_and_exit("Failed to fetch current Bitcoin data.")
 else:
-    save_data_to_csv(config.BTC_DATA_PATH, current_data)    
+    save_data_to_csv(crypto_config.BTC_DATA_PATH, current_data)    
 
 ohcl_data = get_historical_ohlc_data(coin_id='bitcoin', days=30)
 if ohcl_data is not None:
-    ohcl_data.to_csv(config.OHLC_DATA_PATH, index=False)
+    ohcl_data.to_csv(crypto_config.OHLC_DATA_PATH, index=False)
 else:
     notify_and_exit("Failed to fetch OHLC data for Bitcoin.")
 
 try:
-    current_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
+    current_data = pd.read_csv(crypto_config.BTC_DATA_PATH, index_col=False)
     historical_data = merge_dataframes(current_data, historical_data)
-    historical_data.to_csv(config.HISTORICAL_DATA_PATH, index=False)
+    historical_data.to_csv(crypto_config.HISTORICAL_DATA_PATH, index=False)
 except Exception as e:
     notify_and_exit(f"Error merging dataframes: {e}")
 
-plot_crypto_indicators(historical_data, last_n_days=config.LAST_N_DAYS, savepath=config.CRYPTO_INDICATORS_PATH)
+plot_crypto_indicators(historical_data, last_n_days=crypto_config.LAST_N_DAYS, savepath=crypto_config.CRYPTO_INDICATORS_PATH)
