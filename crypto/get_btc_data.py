@@ -57,7 +57,7 @@ def get_historical_price_data(days=300):
         url = f"{BASE_URL}/coins/bitcoin/market_chart"
         params = {
             'vs_currency': 'usd',
-            'days': days, # No need to add 10 here, the API handles the range
+            'days': days, 
             'interval': 'daily'
         }
         
@@ -78,7 +78,7 @@ def get_historical_price_data(days=300):
         df = pd.merge(df_price, df_volume, on='timestamp')
         
         # Convert timestamp to a readable date format
-        df['date'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
         
         # Drop the now redundant timestamp column
         df = df.drop('timestamp', axis=1)
@@ -86,6 +86,9 @@ def get_historical_price_data(days=300):
         # A small improvement: Use float for price to keep decimal precision
         df['price'] = df['price'].astype(float).round(2)
         df['volume'] = df['volume'].astype(float).round(2)
+
+        # Remove second last row from df
+        df = df.drop(df.iloc[-2].name).reset_index(drop=True)
 
         return df
         
@@ -178,3 +181,23 @@ def save_data_to_csv(filename, data):
         print(f"Error writing to file {filename}: {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+
+
+def merge_dataframes(btc_data: pd.DataFrame, historical_data: pd.DataFrame) -> pd.DataFrame:
+    btc_data['date'] = pd.to_datetime(btc_data['date'])
+    historical_data['date'] = pd.to_datetime(historical_data['date'])
+
+    # Normalize both to just date (remove time part)
+    btc_data['date_only'] = btc_data['date'].dt.date
+    historical_data['date_only'] = historical_data['date'].dt.date
+
+    # Merge the two based on date_only
+    merged_df = historical_data.merge(
+        btc_data[['date_only', 'dominance_percentage', 'market_cap_usd', '24h_change_percentage']],
+        on='date_only',
+        how='left'
+    )
+    merged_df.loc[merged_df.index[-1], 'price'] = btc_data['current_price'].iloc[-1]
+    merged_df.drop(columns='date_only', inplace=True)
+
+    return merged_df

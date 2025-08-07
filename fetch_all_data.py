@@ -1,13 +1,25 @@
-from crypto.get_btc_data import get_historical_price_data, get_current_price_and_dominance
-from crypto.get_btc_data import save_data_to_csv, get_historical_ohlc_data
+from crypto.get_btc_data import (
+    get_historical_price_data,
+    get_current_price_and_dominance,
+    merge_dataframes,
+    save_data_to_csv,
+    get_historical_ohlc_data
+)
+
+from crypto.calculations import (
+    calculate_macd,
+    calculate_moving_averages,
+    calculate_rsi,
+    calculate_bollinger_bands
+)
+
 from crypto.data_visualisation import plot_crypto_indicators
-from crypto.calculations import calculate_macd, calculate_moving_averages
-from crypto.calculations import calculate_rsi, calculate_bollinger_bands
 import config
 import os
 from dotenv import load_dotenv
 from telegram_service.bot import TelegramNotifier
 import asyncio
+import pandas as pd
 
 load_dotenv(override=True)
 
@@ -16,28 +28,23 @@ TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 
 notifier = TelegramNotifier(token=BOT_TOKEN)
 
+def notify_and_exit(message: str):
+    asyncio.run(notifier.send_message(msg=message, chat_id=TELEGRAM_USER_ID))
+    exit(1)
+
 historical_data = get_historical_price_data()
 if historical_data is not None:
     historical_data = calculate_moving_averages(historical_data)
     historical_data = calculate_macd(historical_data)
     historical_data = calculate_rsi(historical_data)
-    historical_data = calculate_bollinger_bands(historical_data)    
-    historical_data.to_csv(config.HISTORICAL_DATA_PATH, index=False)
+    historical_data = calculate_bollinger_bands(historical_data)        
 else:
-    asyncio.run(notifier.send_message(
-        msg="Failed to fetch historical Bitcoin data.",
-        chat_id=TELEGRAM_USER_ID
-    ))
-    exit(1)
+    notify_and_exit("Failed to fetch historical Bitcoin data.")
 
 
 current_data = get_current_price_and_dominance()
 if current_data is None:
-    asyncio.run(notifier.send_message(
-        msg="Failed to fetch current Bitcoin data.",
-        chat_id=TELEGRAM_USER_ID
-    ))
-    exit(1)
+    notify_and_exit("Failed to fetch current Bitcoin data.")
 else:
     save_data_to_csv(config.BTC_DATA_PATH, current_data)    
 
@@ -45,10 +52,13 @@ ohcl_data = get_historical_ohlc_data(coin_id='bitcoin', days=30)
 if ohcl_data is not None:
     ohcl_data.to_csv(config.OHLC_DATA_PATH, index=False)
 else:
-    asyncio.run(notifier.send_message(
-        msg="Failed to fetch OHLC data for Bitcoin.",
-        chat_id=TELEGRAM_USER_ID
-    ))
-    exit(1)
+    notify_and_exit("Failed to fetch OHLC data for Bitcoin.")
+
+try:
+    current_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
+    historical_data = merge_dataframes(current_data, historical_data)
+    historical_data.to_csv(config.HISTORICAL_DATA_PATH, index=False)
+except Exception as e:
+    notify_and_exit(f"Error merging dataframes: {e}")
 
 plot_crypto_indicators(historical_data, last_n_days=config.LAST_N_DAYS, savepath=config.CRYPTO_INDICATORS_PATH)

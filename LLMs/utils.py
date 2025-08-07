@@ -1,6 +1,6 @@
 import pandas as pd
 
-def create_trading_prompt(historical_data: pd.DataFrame, btc_data: pd.DataFrame, ta: str, last_n_days: int) -> str:
+def create_trading_prompt(historical_data: pd.DataFrame, ta: str, last_n_days: int) -> str:
     """
     Creates a prompt for the LLM based on Bitcoin market data.
     """
@@ -12,11 +12,6 @@ def create_trading_prompt(historical_data: pd.DataFrame, btc_data: pd.DataFrame,
 
         HISTORICAL_DATA:
         {historical_data.tail(last_n_days).to_string()}
-
-        Current market snapshot:
-
-        BTC_DATA:
-        {btc_data.tail(last_n_days).to_string()}
 
         Technical Analysis Summary:
         {ta}

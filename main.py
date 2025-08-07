@@ -94,7 +94,6 @@ async def main():
 
         # --- Load Data (with error handling) ---
         print("Loading data...")
-        btc_data = pd.read_csv(config.BTC_DATA_PATH, index_col=False)
         historical_data = pd.read_csv(config.HISTORICAL_DATA_PATH, index_col=False)
         df_ohcl = pd.read_csv(config.OHLC_DATA_PATH, index_col=False)
         print("Data loaded successfully.")
@@ -105,7 +104,7 @@ async def main():
     except Exception as e:
         print(f"An error occurred during setup or data loading: {e}")
         return
-
+        
     # --- Perform Technical Analysis ---
     print("Performing technical analysis...")
     analyses = [
@@ -123,7 +122,6 @@ async def main():
     print("Generating LLM response...")
     message = create_trading_prompt(
         historical_data=historical_data,
-        btc_data=btc_data,
         ta=ta,
         last_n_days=config.LAST_N_DAYS
     )
@@ -131,9 +129,9 @@ async def main():
     print("LLM response received.")
 
     # --- Final Calculations and Message Formatting ---
-    current_price = btc_data['current_price'].iloc[-1]
-    purchase_amount = calculate_purchase_amount(btc_data, historical_data)
-    
+    current_price = historical_data['price'].iloc[-1]
+    purchase_amount = calculate_purchase_amount(historical_data)
+
     final_message = (
         f"{response}\n\n"
         f"**Current Price:** ${current_price:,.2f}\n"
@@ -141,7 +139,7 @@ async def main():
         f"--- Technical Analysis Summary ---\n{ta}"
     )
     save_message_to_daily_log(final_message, "reports")
-    
+
     # --- Send Notifications (within the same async context) ---
     print("Sending notifications to Telegram...")
     # These two tasks will run sequentially.

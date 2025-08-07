@@ -91,11 +91,11 @@ def calculate_bollinger_bands(df, window=20, num_std_dev=2):
 
     return df
 
-def calculate_purchase_amount(data,historical_data):
+def calculate_purchase_amount(historical_data):
     ma200 = historical_data['MA200'].iloc[-1]
     current_price = historical_data['price'].iloc[-1]
-    current_dominance = data['dominance_percentage'].iloc[-1]
-    dom200 = calculate_mean_dominance(data)
+    current_dominance = historical_data['dominance_percentage'].iloc[-1]
+    dom200 = calculate_mean_dominance(historical_data)
 
     purchase = 100 * (ma200 / current_price) * (dom200/current_dominance)
 
