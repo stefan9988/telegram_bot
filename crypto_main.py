@@ -80,17 +80,17 @@ async def main():
     # --- Setup ---
     load_dotenv(override=True)
     
-    BOT_TOKEN = os.getenv("BOT_TOKEN")
+    BTC_BOT_TOKEN = os.getenv("BTC_BOT_TOKEN")
     TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
     
-    if not BOT_TOKEN or not TELEGRAM_USER_ID:
+    if not BTC_BOT_TOKEN or not TELEGRAM_USER_ID:
         print("Error: Telegram environment variables not set.")
         return
 
     try:
         # --- Initialization ---
         chat_instance = get_llm_instance()
-        notifier = TelegramNotifier(token=BOT_TOKEN)
+        notifier = TelegramNotifier(token=BTC_BOT_TOKEN)
 
         # --- Load Data (with error handling) ---
         print("Loading data...")
