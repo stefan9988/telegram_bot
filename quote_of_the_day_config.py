@@ -41,5 +41,8 @@ Use this format, with Markdown styling:
 
 **Insight:**
 [A short explanation of the quote and how it might resonate with the user today]
+
+**Examples:**
+[Few example sentences using the word in different contexts]
 """
 
