@@ -2,8 +2,7 @@ import requests
 import json
 import time
 from typing import Tuple, Dict, Optional
-from .llm_interface import LLM
-
+from .llm_interface import LLM 
 
 class OpenRouterLLM(LLM):
     """
@@ -70,6 +69,14 @@ class OpenRouterLLM(LLM):
 
                 json_response = response.json()
 
+                # Check for an error key in the successful (200 OK) response
+                if 'error' in json_response:
+                    error_details = json_response.get('error', {})
+                    error_message = error_details.get('message', 'Unknown API error')
+                
+                    raise requests.exceptions.HTTPError(f"OpenRouter API Error: {error_message}")
+                
+
                 # Extract the response text
                 response_text = json_response['choices'][0]['message']['content']
 
@@ -87,6 +94,8 @@ class OpenRouterLLM(LLM):
 
             except requests.exceptions.RequestException as e:
                 print(f"Request failed on attempt {attempt + 1}/{max_retries}: {e}")
+                if 'OpenRouter API Error' in str(e):
+                    raise
                 if attempt + 1 == max_retries:
                     raise  # Re-raise the exception after the last retry
                 time.sleep(2 ** attempt)  # Exponential backoff
