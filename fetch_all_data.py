@@ -23,10 +23,10 @@ import pandas as pd
 
 load_dotenv(override=True)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BTC_BOT_TOKEN = os.getenv("BTC_BOT_TOKEN")
 TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 
-notifier = TelegramNotifier(token=BOT_TOKEN)
+notifier = TelegramNotifier(token=BTC_BOT_TOKEN)
 
 def notify_and_exit(message: str):
     asyncio.run(notifier.send_message(msg=message, chat_id=TELEGRAM_USER_ID))
