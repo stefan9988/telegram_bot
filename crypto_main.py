@@ -131,12 +131,14 @@ async def main():
     # --- Final Calculations and Message Formatting ---
     current_price = historical_data['price'].iloc[-1]
     purchase_amount = calculate_purchase_amount(historical_data)
+    btc_dominance = historical_data['dominance_percentage'].iloc[-1]
 
     final_message = (
         f"{response}\n\n"
         f"**Current Price:** ${current_price:,.2f}\n"
         f"**Suggested Purchase:** ${purchase_amount:,.2f}\n\n"
         f"--- Technical Analysis Summary ---\n{ta}"
+        f"\n\n**BTC Dominance:** {btc_dominance:.2f}%\n"
         f"\nLLM: {chat_instance.model_id}\n"
     )
     save_message_to_daily_log(final_message, "reports")
@@ -156,3 +158,5 @@ async def main():
 if __name__ == "__main__":
     # Run the entire async main function once.
     asyncio.run(main())
+
+    #TODO add fear and greed index
