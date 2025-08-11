@@ -135,11 +135,11 @@ async def main():
 
     final_message = (
         f"{response}\n\n"
-        f"**Current Price:** ${current_price:,.2f}\n"
-        f"**Suggested Purchase:** ${purchase_amount:,.2f}\n\n"
-        f"--- Technical Analysis Summary ---\n{ta}"
-        f"\n\n**BTC Dominance:** {btc_dominance:.2f}%\n"
-        f"\nLLM: {chat_instance.model_id}\n"
+        f"Current Price: ${current_price:,.2f}\n"
+        f"Suggested Purchase: ${purchase_amount:,.2f}\n\n"
+        f"Technical Analysis Summary: \n{ta}\n"
+        f"BTC Dominance: {btc_dominance:.2f}%\n"
+        f"LLM: {chat_instance.model_id}\n"
     )
     save_message_to_daily_log(final_message, "reports")
 
@@ -160,3 +160,4 @@ if __name__ == "__main__":
     asyncio.run(main())
 
     #TODO add fear and greed index
+    #TODO add altseason index

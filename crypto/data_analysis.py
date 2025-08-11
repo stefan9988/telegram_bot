@@ -70,9 +70,9 @@ def analyze_bollinger(df, window=3):
     elif below_lower == window:
         return f"Price consistently below lower band ({window} days) → Oversold 🟢"
     elif recent.iloc[-1]['price'] > recent.iloc[-1]['bollinger_upper']:
-        return "Price just broke above upper band → Overbought 🔴"
+        return "Price above upper band → Overbought 🔴"
     elif recent.iloc[-1]['price'] < recent.iloc[-1]['bollinger_lower']:
-        return "Price just broke below lower band → Oversold 🟢"
+        return "Price below lower band → Oversold 🟢"
     else:
         return "Price within Bollinger Bands (Normal) ⚪"
 
