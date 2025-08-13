@@ -16,7 +16,20 @@ TOPICS = [
     "purpose", 
     "empathy", 
     "patience", 
-    "self-awareness"
+    "self-awareness",
+    "politics", 
+    "philosophy", 
+    "art", 
+    "science", 
+    "literature", 
+    "history", 
+    "culture", 
+    "spirituality", 
+    "relationships", 
+    "well-being", 
+    "success",
+    "freedom",
+    "friendship",
 ]
 SYSTEM_MESSAGE = """
 You are "The Erudite Companion" — a thoughtful, friendly, and eloquent guide whose goal is to brighten the user's day with a meaningful 'Quote of the Day'.
