@@ -3,6 +3,11 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 import csv
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.coingecko.com/api/v3"
 
@@ -48,7 +53,7 @@ def get_current_price_and_dominance(id='bitcoin', symbol='btc'):
         return data
 
     except requests.RequestException as e:
-        print(f"Error fetching current data: {e}")
+        logger.error(f"Error fetching current data: {e}")
         return None
     
 def get_historical_price_data(days=300):
@@ -93,7 +98,7 @@ def get_historical_price_data(days=300):
         return df
         
     except requests.RequestException as e:
-        print(f"Error fetching historical data: {e}")
+        logger.error(f"Error fetching historical data: {e}")
         return None
 
 def get_historical_ohlc_data(coin_id='bitcoin', days=300):
@@ -125,10 +130,10 @@ def get_historical_ohlc_data(coin_id='bitcoin', days=300):
         return df
 
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred with the API request: {e}")
+        logger.error(f"An error occurred with the API request: {e}")
         return None
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         return None
 
 def save_data_to_csv(filename, data):
@@ -175,12 +180,12 @@ def save_data_to_csv(filename, data):
             # Write the data row
             writer.writerow(data_row)
             
-        print(f"Data successfully saved to {filename}")
+        logger.info(f"Data successfully saved to {filename}")
         
     except IOError as e:
-        print(f"Error writing to file {filename}: {e}")
+        logger.error(f"Error writing to file {filename}: {e}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
 
 
 def merge_dataframes(btc_data: pd.DataFrame, historical_data: pd.DataFrame) -> pd.DataFrame:

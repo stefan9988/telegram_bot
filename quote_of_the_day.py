@@ -2,6 +2,7 @@ import os
 import asyncio
 import random
 import re
+import logging
 from dotenv import load_dotenv
 
 import quote_of_the_day_config
@@ -9,6 +10,11 @@ import quote_of_the_day_config
 from telegram_service.bot import TelegramNotifier
 
 from LLMs.openRouter import OpenRouterLLM
+from requests.exceptions import HTTPError, RequestException
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 load_dotenv(override=True)
 
@@ -55,7 +61,7 @@ def save_word_to_file(word: str, filename: str) -> None:
         with open(filename, mode='a') as file:
             file.write(word + '\n')
     except IOError as e:
-        print(f"Error writing to file {filename}: {e}")
+        logger.error(f"Error writing to file {filename}: {e}")
 
 def get_learned_words(filename: str) -> str:
     """
@@ -78,7 +84,7 @@ def get_learned_words(filename: str) -> str:
     except FileNotFoundError:
         return ""
     except IOError as e:
-        print(f"Error reading from file {filename}: {e}")
+        logger.error(f"Error reading from file {filename}: {e}")
         return ""
     
 # --- Main Asynchronous Logic ---
@@ -95,11 +101,18 @@ async def main():
     learned_words = get_learned_words(WORDS_OF_THE_DAY_FILE)
 
     # --- LLM Interaction ---
-    print("Generating LLM response...")
+    logger.info("Generating LLM response...")
     topic = random.choice(quote_of_the_day_config.TOPICS)
     message = f"Quote of the day about {topic}, please. DO NOT repeat following words: {learned_words}"
-    response, usage = chat_instance.conv(message)
-    print("LLM response received.")
+    try:
+        response, usage = chat_instance.conv(message)
+    except HTTPError as e:
+        logger.error(f"OpenRouter API error: {e}")
+        return
+    except RequestException as e:
+        logger.error(f"Network error contacting OpenRouter: {e}")
+        return
+    logger.info("LLM response received.")
 
     final_message = (
         f"{response}\n\n"
@@ -111,10 +124,10 @@ async def main():
         save_word_to_file(advanced_word, WORDS_OF_THE_DAY_FILE)
 
     # --- Send Notifications (within the same async context) ---
-    print("Sending notifications to Telegram...")
+    logger.info("Sending notifications to Telegram...")
     # These two tasks will run sequentially.
     await notifier.send_message(msg=final_message, chat_id=TELEGRAM_USER_ID)
-    print("Notification sent.")
+    logger.info("Notification sent.")
 
 
 if __name__ == "__main__":
