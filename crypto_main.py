@@ -2,6 +2,7 @@ import datetime
 import pandas as pd
 import os
 import asyncio
+import logging
 from dotenv import load_dotenv
 
 import crypto_config
@@ -15,10 +16,14 @@ from crypto.calculations import calculate_purchase_amount
 from LLMs.openAI import AzureChat
 from LLMs.openRouter import OpenRouterLLM
 
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 def get_llm_instance():
     """Selects and initializes the LLM based on the config file."""
     if crypto_config.LLM_PROVIDER.upper() == "AZURE":
-        print("Using Azure OpenAI LLM.")
+        logger.info("Using Azure OpenAI LLM.")
         api_key = os.getenv("AZURE_OPENAI_API_KEY")
         endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         if not api_key or not endpoint:
@@ -32,7 +37,7 @@ def get_llm_instance():
             top_p=crypto_config.TOP_P,
         )
     elif crypto_config.LLM_PROVIDER.upper() == "OPEN_ROUTER":
-        print("Using OpenRouter LLM.")
+        logger.info("Using OpenRouter LLM.")
         api_key = os.getenv("OPEN_ROUTER_API_KEY")
         if not api_key:
             raise ValueError("OPEN_ROUTER_API_KEY must be set.")
@@ -57,7 +62,7 @@ def save_message_to_daily_log(msg: str, log_directory: str):
     # --- 1. Create the log directory if it doesn't exist ---
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
-        print(f"Created directory: {log_directory}")
+        logger.info(f"Created directory: {log_directory}")
 
     # --- 2. Generate the filename based on the current date ---
     # e.g., 'report_2023-10-27.txt'
@@ -68,9 +73,9 @@ def save_message_to_daily_log(msg: str, log_directory: str):
     try:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(msg)
-        print(f"Successfully wrote message to '{filename}'")
+        logger.info(f"Successfully wrote message to '{filename}'")
     except IOError as e:
-        print(f"Error: Could not write to file '{filename}'. Reason: {e}")
+        logger.error(f"Error: Could not write to file '{filename}'. Reason: {e}")
 
 # --- Main Asynchronous Logic ---
 async def main():
@@ -82,9 +87,9 @@ async def main():
     
     BTC_BOT_TOKEN = os.getenv("BTC_BOT_TOKEN")
     TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
-    
+
     if not BTC_BOT_TOKEN or not TELEGRAM_USER_ID:
-        print("Error: Telegram environment variables not set.")
+        logger.error("Error: Telegram environment variables not set.")
         return
 
     try:
@@ -93,20 +98,20 @@ async def main():
         notifier = TelegramNotifier(token=BTC_BOT_TOKEN)
 
         # --- Load Data (with error handling) ---
-        print("Loading data...")
+        logger.info("Loading data...")
         historical_data = pd.read_csv(crypto_config.HISTORICAL_DATA_PATH, index_col=False)
         df_ohcl = pd.read_csv(crypto_config.OHLC_DATA_PATH, index_col=False)
-        print("Data loaded successfully.")
+        logger.info("Data loaded successfully.")
 
     except FileNotFoundError as e:
-        print(f"Error: Data file not found - {e}")
+        logger.error(f"Error: Data file not found - {e}")
         return
     except Exception as e:
-        print(f"An error occurred during setup or data loading: {e}")
+        logger.error(f"An error occurred during setup or data loading: {e}")
         return
         
     # --- Perform Technical Analysis ---
-    print("Performing technical analysis...")
+    logger.info("Performing technical analysis...")
     analyses = [
         analyze_moving_averages(historical_data, window=crypto_config.WINDOW),
         analyze_macd(historical_data, window=crypto_config.WINDOW),
@@ -116,17 +121,17 @@ async def main():
         analyze_market_regime(df_ohcl)
     ]
     ta = "\n".join(analyses)
-    print("Analysis complete.")
+    logger.info("Analysis complete.")
 
     # --- LLM Interaction ---
-    print("Generating LLM response...")
+    logger.info("Generating LLM response...")
     message = create_trading_prompt(
         historical_data=historical_data,
         ta=ta,
         last_n_days=crypto_config.LAST_N_DAYS
     )
     response, usage = chat_instance.conv(message)
-    print("LLM response received.")
+    logger.info("LLM response received.")
 
     # --- Final Calculations and Message Formatting ---
     current_price = historical_data['price'].iloc[-1]
@@ -144,7 +149,7 @@ async def main():
     save_message_to_daily_log(final_message, "reports")
 
     # --- Send Notifications (within the same async context) ---
-    print("Sending notifications to Telegram...")
+    logger.info("Sending notifications to Telegram...")
     # These two tasks will run sequentially.
     await notifier.send_message(msg=final_message, chat_id=TELEGRAM_USER_ID)
     await notifier.send_photo(
@@ -152,7 +157,7 @@ async def main():
         caption="Crypto Indicators Chart",
         chat_id=TELEGRAM_USER_ID
     )
-    print("Notifications sent.")
+    logger.info("Notifications sent.")
 
 
 if __name__ == "__main__":

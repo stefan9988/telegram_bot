@@ -1,7 +1,13 @@
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 def calculate_moving_averages(df):
     """
     Add 50-day and 200-day simple moving averages to the DataFrame.
-    
+
     Parameters:
     - df: DataFrame with Bitcoin prices and datetime index.
 
@@ -9,7 +15,7 @@ def calculate_moving_averages(df):
     - DataFrame with 'MA50' and 'MA200' columns added.
     """
     if df is None or df.empty:
-        print("Input DataFrame is empty or None.")
+        logger.warning("Input DataFrame is empty or None.")
         return None
 
     df['MA50'] = df['price'].rolling(window=50).mean().round(2)

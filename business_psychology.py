@@ -1,6 +1,7 @@
 import os
 import asyncio
 import random
+import logging
 from dotenv import load_dotenv
 
 import business_psychology_config
@@ -10,6 +11,10 @@ from telegram_service.bot import TelegramNotifier
 from LLMs.openRouter import OpenRouterLLM
 
 load_dotenv(override=True)
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
 BUSINESS_BOT_TOKEN = os.getenv("BUSINESS_BOT_TOKEN")
@@ -29,13 +34,13 @@ async def main():
     # Generate advice from LLM
     scenario = random.choice(business_psychology_config.SCENARIOS)
     context_twist = random.choice(business_psychology_config.CONTEXT_TWISTS)
-    print("Generating LLM response...")
+    logger.info("Generating LLM response...")
     prompt = (
         f"Provide psychological advice for the following situation in a business context: {scenario}. "
         f"Consider the following context twist: {context_twist}."
     )
     response, usage = chat_instance.conv(prompt)
-    print("LLM response received.")
+    logger.info("LLM response received.")
 
     final_message = (
         f"{response}\n\n"
@@ -45,9 +50,9 @@ async def main():
     )
 
     # Send advice to Telegram
-    print("Sending notifications to Telegram...")
+    logger.info("Sending notifications to Telegram...")
     await notifier.send_message(msg=final_message, chat_id=TELEGRAM_USER_ID)
-    print("Notification sent.")
+    logger.info("Notification sent.")
 
 
 if __name__ == "__main__":

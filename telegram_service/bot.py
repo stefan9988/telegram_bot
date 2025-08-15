@@ -1,5 +1,10 @@
 from telegram import Bot
 from telegram.error import TelegramError
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 class TelegramNotifier:
     """
@@ -19,9 +24,9 @@ class TelegramNotifier:
                 text=msg
             )            
         except TelegramError as e:
-            print(f"Error sending message: {e}")
+            logger.error(f"Error sending message: {e}")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            logger.error(f"An unexpected error occurred: {e}")
 
     async def send_photo(self, image_path: str, caption: str, chat_id: int):
         """Sends a photo to the specified Telegram user."""
@@ -33,15 +38,9 @@ class TelegramNotifier:
                     caption=caption
                 )
         except FileNotFoundError:
-            print(f"Error: The file at {image_path} was not found.")
+            logger.error(f"Error: The file at {image_path} was not found.")
         except TelegramError as e:
-            print(f"Error sending photo: {e}")
+            logger.error(f"Error sending photo: {e}")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-
-
-
-
-
-
+            logger.error(f"An unexpected error occurred: {e}")
 
