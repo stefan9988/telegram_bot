@@ -43,10 +43,10 @@ async def main():
     logger.info("LLM response received.")
 
     final_message = (
-        f"{response}\n\n"
         f"Scenario: {scenario}\n"
-        f"Context Twist: {context_twist}\n"
-        f"LLM: {chat_instance.model_id}\n"
+        f"Context Twist: {context_twist}\n\n"
+        f"{response}\n\n"
+        f"LLM: {chat_instance.model_id}"
     )
 
     # Send advice to Telegram

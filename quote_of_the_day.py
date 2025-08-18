@@ -115,9 +115,9 @@ async def main():
     logger.info("LLM response received.")
 
     final_message = (
+        f"Topic: {topic}\n\n"
         f"{response}\n\n"
-        f"Topic: {topic}\n"
-        f"LLM: {chat_instance.model_id}\n"
+        f"LLM: {chat_instance.model_id}"
     )
     advanced_word = extract_word_from_message(final_message)
     if advanced_word != "":
