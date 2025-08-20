@@ -14,3 +14,13 @@ Cron jobs should be created like this:
 2 20 * * * cd /home/stefandragicevic/telegram_bot && /home/stefandragicevic/telegram_bot/.venv/bin/python3 business_psychology.py >> /home/stefandragicevic/telegram_bot/cron.log 2>&1
 ```
 
+
+## Git Hooks
+
+To ensure the test suite runs before code is pushed, configure Git to use the hooks in this repository:
+
+```
+git config core.hooksPath .githooks
+```
+
+The included `pre-push` hook runs `PYTHONPATH=. pytest` and prevents the push if any tests fail.
