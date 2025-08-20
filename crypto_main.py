@@ -13,43 +13,11 @@ from crypto.data_analysis import (
     analyze_rsi, analyze_volume, analyze_market_regime
 )
 from crypto.calculations import calculate_purchase_amount
-from LLMs.openAI import AzureChat
-from LLMs.openRouter import OpenRouterLLM
+from LLMs.factory import get_llm_instance
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-def get_llm_instance():
-    """Selects and initializes the LLM based on the config file."""
-    if crypto_config.LLM_PROVIDER.upper() == "AZURE":
-        logger.info("Using Azure OpenAI LLM.")
-        api_key = os.getenv("AZURE_OPENAI_API_KEY")
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        if not api_key or not endpoint:
-            raise ValueError("AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT must be set.")
-        return AzureChat(
-            model_id=crypto_config.AZURE_MODEL_ID,
-            api_key=api_key,
-            azure_endpoint=endpoint,
-            system_message=crypto_config.SYSTEM_MESSAGE,
-            temperature=crypto_config.TEMPERATURE,
-            top_p=crypto_config.TOP_P,
-        )
-    elif crypto_config.LLM_PROVIDER.upper() == "OPEN_ROUTER":
-        logger.info("Using OpenRouter LLM.")
-        api_key = os.getenv("OPEN_ROUTER_API_KEY")
-        if not api_key:
-            raise ValueError("OPEN_ROUTER_API_KEY must be set.")
-        return OpenRouterLLM(
-            api_key=api_key,
-            model_id=crypto_config.OPEN_ROUTER_MODEL_ID,
-            system_message=crypto_config.SYSTEM_MESSAGE,
-            temperature=crypto_config.TEMPERATURE,
-            top_p=crypto_config.TOP_P
-        )
-    else:
-        raise ValueError(f"Unknown LLM_PROVIDER: {crypto_config.LLM_PROVIDER}")
 
 def save_message_to_daily_log(msg: str, log_directory: str):
     """
@@ -94,7 +62,7 @@ async def main():
 
     try:
         # --- Initialization ---
-        chat_instance = get_llm_instance()
+        chat_instance = get_llm_instance(crypto_config)
         notifier = TelegramNotifier(token=BTC_BOT_TOKEN)
 
         # --- Load Data (with error handling) ---

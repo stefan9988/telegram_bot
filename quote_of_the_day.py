@@ -9,7 +9,7 @@ import quote_of_the_day_config
 
 from telegram_service.bot import TelegramNotifier
 
-from LLMs.openRouter import OpenRouterLLM
+from LLMs.factory import get_llm_instance
 from requests.exceptions import HTTPError, RequestException
 
 logging.basicConfig(level=logging.INFO,
@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 load_dotenv(override=True)
 
-OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
 QOTD_BOT_TOKEN = os.getenv("QOTD_BOT_TOKEN")
 TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 WORDS_OF_THE_DAY_FILE = 'words_of_the_day.txt'
@@ -90,13 +89,7 @@ def get_learned_words(filename: str) -> str:
 # --- Main Asynchronous Logic ---
 async def main():
     # --- Initialization ---
-    chat_instance = OpenRouterLLM(
-        api_key=OPEN_ROUTER_API_KEY,
-        model_id=quote_of_the_day_config.OPEN_ROUTER_MODEL_ID,
-        system_message=quote_of_the_day_config.SYSTEM_MESSAGE,
-        temperature=quote_of_the_day_config.TEMPERATURE,
-        top_p=quote_of_the_day_config.TOP_P
-    )
+    chat_instance = get_llm_instance(quote_of_the_day_config)
     notifier = TelegramNotifier(token=QOTD_BOT_TOKEN)
     learned_words = get_learned_words(WORDS_OF_THE_DAY_FILE)
 
