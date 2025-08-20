@@ -5,7 +5,7 @@ import re
 import logging
 from dotenv import load_dotenv
 
-import quote_of_the_day_config
+import config.quote_of_the_day_config as quote_of_the_day_config
 
 from telegram_service.bot import TelegramNotifier
 

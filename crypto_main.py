@@ -5,7 +5,7 @@ import asyncio
 import logging
 from dotenv import load_dotenv
 
-import crypto_config
+import config.crypto_config as crypto_config
 from LLMs.utils import create_trading_prompt
 from telegram_service.bot import TelegramNotifier
 from crypto.data_analysis import (

@@ -14,7 +14,7 @@ from crypto.calculations import (
 )
 
 from crypto.data_visualisation import plot_crypto_indicators
-import crypto_config
+import config.crypto_config as crypto_config
 import os
 from dotenv import load_dotenv
 from telegram_service.bot import TelegramNotifier

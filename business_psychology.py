@@ -4,7 +4,7 @@ import random
 import logging
 from dotenv import load_dotenv
 
-import business_psychology_config
+import config.business_psychology_config as business_psychology_config
 
 from telegram_service.bot import TelegramNotifier
 

@@ -1,7 +1,7 @@
 import os
 import logging
-from .openAI import AzureChat
-from .openRouter import OpenRouterLLM
+from .open_ai import AzureChat
+from .open_router import OpenRouterLLM
 
 logger = logging.getLogger(__name__)
 
