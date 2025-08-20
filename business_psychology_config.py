@@ -1,3 +1,4 @@
+LLM_PROVIDER = "OPEN_ROUTER"
 OPEN_ROUTER_MODEL_ID = "deepseek/deepseek-chat-v3-0324:free"
 TEMPERATURE = 0.4
 TOP_P = 1.0

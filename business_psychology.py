@@ -8,7 +8,7 @@ import business_psychology_config
 
 from telegram_service.bot import TelegramNotifier
 
-from LLMs.openRouter import OpenRouterLLM
+from LLMs.factory import get_llm_instance
 
 load_dotenv(override=True)
 
@@ -16,19 +16,12 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
 BUSINESS_BOT_TOKEN = os.getenv("BUSINESS_BOT_TOKEN")
 TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 
 async def main():
     # Initialize LLM and notifier
-    chat_instance = OpenRouterLLM(
-        api_key=OPEN_ROUTER_API_KEY,
-        model_id=business_psychology_config.OPEN_ROUTER_MODEL_ID,
-        system_message=business_psychology_config.SYSTEM_MESSAGE,
-        temperature=business_psychology_config.TEMPERATURE,
-        top_p=business_psychology_config.TOP_P,
-    )
+    chat_instance = get_llm_instance(business_psychology_config)
     notifier = TelegramNotifier(token=BUSINESS_BOT_TOKEN)
 
     # Generate advice from LLM
