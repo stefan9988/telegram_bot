@@ -1,7 +1,12 @@
-BTC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/btc_data.csv"
-HISTORICAL_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/historical_data.csv"
-CRYPTO_INDICATORS_PATH = "data/crypto_indicators.png"
-OHLC_DATA_PATH = "/home/stefandragicevic/telegram_bot/data/ohlc_data.csv"
+from pathlib import Path
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_DATA_DIR = _PROJECT_ROOT / "data"
+
+BTC_DATA_PATH = _DATA_DIR / "btc_data.csv"
+HISTORICAL_DATA_PATH = _DATA_DIR / "historical_data.csv"
+CRYPTO_INDICATORS_PATH = _DATA_DIR / "crypto_indicators.png"
+OHLC_DATA_PATH = _DATA_DIR / "ohlc_data.csv"
 LAST_N_DAYS=50
 WINDOW = 50
 
