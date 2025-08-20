@@ -20,10 +20,10 @@ poetry install
 
 Create a `.env` file in the project root with the required credentials:
 
-```
-BTC_BOT_TOKEN=<token for crypto updates>
-QOTD_BOT_TOKEN=<token for quote of the day>
-BUSINESS_BOT_TOKEN=<token for business psychology updates>
+```dotenv
+BTC_BOT_TOKEN=<telegram bot token for crypto updates>
+QOTD_BOT_TOKEN=<telegram bot token for quote of the day>
+BUSINESS_BOT_TOKEN=<telegram bot token for business psychology updates>
 TELEGRAM_USER_ID=<your telegram user id>
 
 # LLM credentials
@@ -42,7 +42,7 @@ mkdir -p data
 
 ### Running the scripts
 
-Use Poetry to run any script:
+Each script can be run individually depending on which bot you want to update.
 
 ```bash
 poetry run python fetch_all_data.py
@@ -63,7 +63,7 @@ PYTHONPATH=. poetry run pytest
 
 To ensure the test suite runs before code is pushed, configure Git to use the hooks in this repository:
 
-```
+```bash
 git config core.hooksPath .githooks
 ```
 
@@ -71,12 +71,12 @@ The included `pre-push` hook runs `PYTHONPATH=. pytest` and prevents the push if
 
 ## Cron Jobs
 
-Schedule the scripts with cron to send updates automatically:
+Schedule the scripts with cron to send updates automatically by adding these lines to crontab (`crontab -e`):
 
 ```
 # m h  dom mon dow   command
 20 8  * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python fetch_all_data.py      >> /path/to/telegram_bot/cron.log 2>&1
 25 8  * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python crypto_main.py         >> /path/to/telegram_bot/cron.log 2>&1
 20 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python quote_of_the_day.py    >> /path/to/telegram_bot/cron.log 2>&1
-2  20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python business_psychology.py >> /path/to/telegram_bot/cron.log 2>&1
+2 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python business_psychology.py >> /path/to/telegram_bot/cron.log 2>&1
 ```
