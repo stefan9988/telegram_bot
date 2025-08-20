@@ -34,13 +34,13 @@ def analyze_macd(df, window=3):
 
         if prev['MACD'] < prev['Signal_Line'] and curr['MACD'] > curr['Signal_Line']:
             days_ago = (last_index - curr_index).days if is_datetime else len(recent) - i - 1
-            signals.append(f"Bullish crossover {days_ago} days ago🟢")
+            signals.append(f"Bullish crossover {days_ago} days ago 🟢")
         elif prev['MACD'] > prev['Signal_Line'] and curr['MACD'] < curr['Signal_Line']:
             days_ago = (last_index - curr_index).days if is_datetime else len(recent) - i - 1
-            signals.append(f"Bearish crossover {days_ago} days ago🔴")
+            signals.append(f"Bearish crossover {days_ago} days ago 🔴")
 
     if signals:
-        return f"MACD Crossovers Detected: {', '.join(signals)}"
+        return f"MACD Crossovers Detected:\n{',\n'.join(signals)}"
     elif recent.iloc[-1]['MACD'] > recent.iloc[-1]['Signal_Line']:
         return "MACD shows bullish momentum 🟢"
     else:
