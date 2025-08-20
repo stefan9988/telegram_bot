@@ -59,6 +59,16 @@ Run the test suite to verify the installation:
 PYTHONPATH=. poetry run pytest
 ```
 
+## Git Hooks
+
+To ensure the test suite runs before code is pushed, configure Git to use the hooks in this repository:
+
+```
+git config core.hooksPath .githooks
+```
+
+The included `pre-push` hook runs `PYTHONPATH=. pytest` and prevents the push if any tests fail.
+
 ## Cron Jobs
 
 Schedule the scripts with cron to send updates automatically:
@@ -70,13 +80,3 @@ Schedule the scripts with cron to send updates automatically:
 20 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python quote_of_the_day.py    >> /path/to/telegram_bot/cron.log 2>&1
 2  20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python business_psychology.py >> /path/to/telegram_bot/cron.log 2>&1
 ```
-
-## Git Hooks
-
-To ensure the test suite runs before code is pushed, configure Git to use the hooks in this repository:
-
-```
-git config core.hooksPath .githooks
-```
-
-The included `pre-push` hook runs `PYTHONPATH=. pytest` and prevents the push if any tests fail.
