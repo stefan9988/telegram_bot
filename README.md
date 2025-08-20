@@ -11,7 +11,7 @@ This project comprises several Python scripts that send daily updates to Telegra
 ### Installation
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/stefan9988/telegram_bot.git
 cd telegram_bot
 poetry install
 ```
@@ -80,3 +80,6 @@ Schedule the scripts with cron to send updates automatically by adding these lin
 20 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python quote_of_the_day.py    >> /path/to/telegram_bot/cron.log 2>&1
 2 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python business_psychology.py >> /path/to/telegram_bot/cron.log 2>&1
 ```
+
+## License
+[MIT](LICENSE)
