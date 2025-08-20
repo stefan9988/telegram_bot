@@ -24,14 +24,20 @@ def analyze_macd(df, window=3):
     recent = df.tail(window)
     signals = []
 
+    last_index = recent.index[-1]
+    is_datetime = pd.api.types.is_datetime64_any_dtype(recent.index)
+
     for i in range(1, len(recent)):
         prev = recent.iloc[i - 1]
         curr = recent.iloc[i]
+        curr_index = recent.index[i]
 
         if prev['MACD'] < prev['Signal_Line'] and curr['MACD'] > curr['Signal_Line']:
-            signals.append("Bullish crossover 🟢")
+            days_ago = (last_index - curr_index).days if is_datetime else len(recent) - i - 1
+            signals.append(f"Bullish crossover {days_ago} days ago🟢")
         elif prev['MACD'] > prev['Signal_Line'] and curr['MACD'] < curr['Signal_Line']:
-            signals.append("Bearish crossover 🔴")
+            days_ago = (last_index - curr_index).days if is_datetime else len(recent) - i - 1
+            signals.append(f"Bearish crossover {days_ago} days ago🔴")
 
     if signals:
         return f"MACD Crossovers Detected: {', '.join(signals)}"
