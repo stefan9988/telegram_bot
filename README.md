@@ -1,16 +1,72 @@
 # Telegram Bot
 
-This project comprises several Python scripts that send daily updates to Telegram chats. It gathers cryptocurrency data, inspirational quotes, and business psychology insights, delivering them through the Telegram Bot API. Scheduled cron jobs run each script at the desired times.
+This project comprises several Python scripts that send daily updates to Telegram chats. It gathers cryptocurrency data, inspirational quotes, and business psychology insights, delivering them through the Telegram Bot API.
+
+## Setup
+
+### Prerequisites
+- Python 3.12
+- [Poetry](https://python-poetry.org/) for dependency management
+
+### Installation
+
+```bash
+git clone <repository_url>
+cd telegram_bot
+poetry install
+```
+
+### Environment variables
+
+Create a `.env` file in the project root with the required credentials:
+
+```
+BTC_BOT_TOKEN=<token for crypto updates>
+QOTD_BOT_TOKEN=<token for quote of the day>
+BUSINESS_BOT_TOKEN=<token for business psychology updates>
+TELEGRAM_USER_ID=<your telegram user id>
+
+# LLM credentials
+AZURE_OPENAI_API_KEY=<azure key>       # used when LLM_PROVIDER is AZURE
+AZURE_OPENAI_ENDPOINT=<azure endpoint> # used when LLM_PROVIDER is AZURE
+OPEN_ROUTER_API_KEY=<openrouter key>   # used when LLM_PROVIDER is OPEN_ROUTER
+```
+
+### Data directory
+
+Scripts output CSV files and images to `data/`. Create it if it doesn't exist:
+
+```bash
+mkdir -p data
+```
+
+### Running the scripts
+
+Use Poetry to run any script:
+
+```bash
+poetry run python fetch_all_data.py
+poetry run python crypto_main.py
+poetry run python quote_of_the_day.py
+poetry run python business_psychology.py
+```
+
+### Tests
+
+Run the test suite to verify the installation:
+
+```bash
+PYTHONPATH=. poetry run pytest
+```
 
 ## Cron Jobs
 
-Cron jobs should be created like this:
+Schedule the scripts with cron to send updates automatically:
 
 ```
 # m h  dom mon dow   command
-20 8 * * * cd /home/stefandragicevic/telegram_bot && /home/stefandragicevic/telegram_bot/.venv/bin/python3 fetch_all_data.py >> /home/stefandragicevic/telegram_bot/cron.log 2>&1
-25 8 * * * cd /home/stefandragicevic/telegram_bot && /home/stefandragicevic/telegram_bot/.venv/bin/python3 crypto_main.py >> /home/stefandragicevic/telegram_bot/cron.log 2>&1
-20 20 * * * cd /home/stefandragicevic/telegram_bot && /home/stefandragicevic/telegram_bot/.venv/bin/python3 quote_of_the_day.py >> /home/stefandragicevic/telegram_bot/cron.log 2>&1
-2 20 * * * cd /home/stefandragicevic/telegram_bot && /home/stefandragicevic/telegram_bot/.venv/bin/python3 business_psychology.py >> /home/stefandragicevic/telegram_bot/cron.log 2>&1
+20 8  * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python fetch_all_data.py      >> /path/to/telegram_bot/cron.log 2>&1
+25 8  * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python crypto_main.py         >> /path/to/telegram_bot/cron.log 2>&1
+20 20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python quote_of_the_day.py    >> /path/to/telegram_bot/cron.log 2>&1
+2  20 * * * cd /path/to/telegram_bot && PYTHONPATH=. poetry run python business_psychology.py >> /path/to/telegram_bot/cron.log 2>&1
 ```
-
