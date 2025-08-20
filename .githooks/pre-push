@@ -1,0 +1,6 @@
+#!/bin/sh
+# Git pre-push hook to run tests before pushing
+set -e
+
+# Run test suite
+PYTHONPATH=. pytest
