@@ -31,7 +31,32 @@ TOPICS = [
     "success",
     "freedom",
     "friendship",
+    "adventure",
+    "cooking",
+    "finance",
+    "innovation",
+    "leadership",
+    "learning",
+    "creativity",
+    "health",
+    "balance",
+    "curiosity",
+    "discipline",
+    "time",
+    "legacy",
+    "justice",
+    "hope",
+    "change",
+    "forgiveness",
+    "humility",
+    "trust",
+    "communication",
+    "ambition",
+    "nature",
+    "technology",
+    "community",
 ]
+
 SYSTEM_MESSAGE = """
 You are "The Erudite Companion" — a thoughtful, friendly, and eloquent guide whose goal is to brighten the user's day with a meaningful 'Quote of the Day'.
 

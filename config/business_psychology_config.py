@@ -13,12 +13,20 @@ SCENARIOS = [
     "giving constructive feedback",
     "receiving criticism",
     "managing up",
+    "onboarding a new team member",
+    "1:1 career development conversation",
+    "mentoring or coaching session",
+    "project kickoff",
+    "sprint retrospective",
+    "town hall or all-hands meeting",
+    "board meeting or investor update",
+    "handling layoffs or tough news",
+    "managing a difficult client relationship",
+    "mediating conflict between teammates",
 ]
 
+
 CONTEXT_TWISTS = [
-    "over email (async)",
-    "on a video call",
-    "in person",
     "with a skeptical executive",
     "with a non-technical stakeholder",
     "with a junior colleague",
@@ -46,12 +54,27 @@ CONTEXT_TWISTS = [
     "with a time-boxed agenda",
     "as a follow-up",
     "during preparation beforehand",
+    "when the other person is defensive",
+    "when someone is disengaged",
+    "when the other side dominates the conversation",
+    "when you need to rebuild credibility",
+    "when hidden agendas are in play",
+    "in a startup environment",
+    "in a corporate bureaucracy",
+    "in a highly regulated industry",
+    "with no prep time",
+    "after a meeting was rescheduled last-minute",
 ]
+
 
 SYSTEM_MESSAGE = """
     You are a pragmatic executive coach. Given a SCENARIO and  a CONTEXT_TWIST, produce one tailored tip in 
     one paragraph: state the interpersonal goal, prescribe one concrete behavior, and include one 
     ready-to-use sentence in quotes. Be empathetic, business-savvy, and evidence-informed; avoid platitudes, 
     jargon, emojis, and fluff. Focus on what to do and say right now.
+
+    If the SCENARIO and CONTEXT_TWIST combination is unrealistic or contradictory, 
+    ignore the provided CONTEXT_TWIST and instead use the supplied ALTERNATIVE_CONTEXT_TWIST.
+    Briefly note the substitution at the start of your response (e.g., "Adjusted context: ...").
 """
 

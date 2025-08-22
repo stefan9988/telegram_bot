@@ -27,17 +27,19 @@ async def main():
     # Generate advice from LLM
     scenario = random.choice(business_psychology_config.SCENARIOS)
     context_twist = random.choice(business_psychology_config.CONTEXT_TWISTS)
+    alternative_context_twist = random.choice(business_psychology_config.CONTEXT_TWISTS)
     logger.info("Generating LLM response...")
     prompt = (
         f"Provide psychological advice for the following situation in a business context: {scenario}. "
-        f"Consider the following context twist: {context_twist}."
+        f"Consider the following context twist: {context_twist}. Alternative context twist: {alternative_context_twist}"
     )
     response, usage = chat_instance.conv(prompt)
     logger.info("LLM response received.")
 
     final_message = (
         f"Scenario: {scenario}\n"
-        f"Context Twist: {context_twist}\n\n"
+        f"Context Twist: {context_twist}\n"
+        f"Alternative Context Twist: {alternative_context_twist}\n\n"
         f"{response}\n\n"
         f"LLM: {chat_instance.model_id}"
     )
