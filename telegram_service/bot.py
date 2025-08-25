@@ -44,3 +44,28 @@ class TelegramNotifier:
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
 
+    async def get_updates(self):
+        """Fetches updates, returns their texts, then acknowledges them on Telegram."""
+        try:
+            updates = await self.bot.get_updates()
+            texts = [u.message.text for u in updates if getattr(u, "message", None) and u.message.text]
+
+            # Acknowledge: mark everything up to the newest update as "confirmed"
+            if updates:
+                last_id = updates[-1].update_id
+                # We don't care about the response; this call tells Telegram to skip old updates next time
+                try:
+                    await self.bot.get_updates(offset=last_id + 1, limit=1)
+                except TelegramError as ack_err:
+                    # Not fatal: worst case you'll see duplicates next run
+                    logger.warning(f"Ack failed (will retry next time): {ack_err}")
+
+            return texts
+
+        except TelegramError as e:
+            logger.error(f"Error fetching updates: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
+            return []
+
