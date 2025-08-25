@@ -1,3 +1,4 @@
+FILEPATH = 'data/words_of_the_day.txt'
 LLM_PROVIDER = "OPEN_ROUTER" # "AZURE", "OPEN_ROUTER"
 AZURE_MODEL_ID = "gpt-4o"
 OPEN_ROUTER_MODEL_ID = "moonshotai/kimi-k2:free" # "z-ai/glm-4.5-air:free", "deepseek/deepseek-chat-v3-0324:free"

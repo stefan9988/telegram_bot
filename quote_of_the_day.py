@@ -20,7 +20,6 @@ load_dotenv(override=True)
 
 QOTD_BOT_TOKEN = os.getenv("QOTD_BOT_TOKEN")
 TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
-WORDS_OF_THE_DAY_FILE = 'words_of_the_day.txt'
 
 def extract_word_from_message(message: str) -> str:
     """
@@ -91,7 +90,7 @@ async def main():
     # --- Initialization ---
     chat_instance = get_llm_instance(quote_of_the_day_config)
     notifier = TelegramNotifier(token=QOTD_BOT_TOKEN)
-    learned_words = get_learned_words(WORDS_OF_THE_DAY_FILE)
+    learned_words = get_learned_words(quote_of_the_day_config.FILEPATH)
 
     # --- LLM Interaction ---
     logger.info("Generating LLM response...")
@@ -114,7 +113,7 @@ async def main():
     )
     advanced_word = extract_word_from_message(final_message)
     if advanced_word != "":
-        save_word_to_file(advanced_word, WORDS_OF_THE_DAY_FILE)
+        save_word_to_file(advanced_word, quote_of_the_day_config.FILEPATH)
 
     # --- Send Notifications (within the same async context) ---
     logger.info("Sending notifications to Telegram...")
