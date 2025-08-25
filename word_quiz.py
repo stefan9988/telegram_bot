@@ -1,7 +1,6 @@
 import os
 import asyncio
 import random
-import re
 import logging
 from dotenv import load_dotenv
 from quote_of_the_day import get_learned_words
@@ -27,21 +26,21 @@ def clean_words(words: list[str]) -> list[str]:
     return [w.strip().lower() for w in words]
 
 def evaluate_answers(correct_words: list[str], user_words: list[str]) -> str:
-    cw = clean_words(correct_words)
-    uw = clean_words(user_words)
+    correct_words = clean_words(correct_words)
+    user_words = clean_words(user_words)
 
     results = []
-    min_len = min(len(cw), len(uw))
+    min_len = min(len(correct_words), len(user_words))
 
     for i in range(min_len):
-        if cw[i] == uw[i]:
-            results.append(f"{i+1}. {cw[i]} == {uw[i]} ✅")
+        if correct_words[i] == user_words[i]:
+            results.append(f"{i+1}. {correct_words[i]} == {user_words[i]} ✅")
         else:
-            results.append(f"{i+1}. {cw[i]} != {uw[i]} ❌")
+            results.append(f"{i+1}. {correct_words[i]} != {user_words[i]} ❌")
 
-    if len(cw) != len(uw):
+    if len(correct_words) != len(user_words):
         results.append(
-            f"⚠️ List size mismatch: {len(cw)} correct words vs {len(uw)} user words"
+            f"⚠️ List size mismatch: {len(correct_words)} correct words vs {len(user_words)} user words"
         )
 
     return "\n".join(results)
@@ -79,9 +78,10 @@ async def main():
     await notifier.send_message(msg=final_message, chat_id=TELEGRAM_USER_ID)
     logger.info("Notification sent.")
 
-    # Start checking for updates for the next 30 minutes
+    # Start checking for updates 
     start_time = asyncio.get_event_loop().time()
-    end_time = start_time + (30 * 60)  # 30 minutes in seconds
+    end_time = start_time + word_quiz_config.WAIT_FOR_REPLY_SECONDS
+    telegram_response = []
     
     while asyncio.get_event_loop().time() < end_time:
         try:
@@ -89,15 +89,21 @@ async def main():
             if telegram_response != []:
                 logger.info("Received user response. %s", telegram_response)
                 break
-            await asyncio.sleep(10)
+            await asyncio.sleep(word_quiz_config.SLEEP_BETWEEN_CHECKS_SECONDS)
         except (HTTPError, RequestException) as e:
             logger.error("Error getting updates: %s", e)
-            await asyncio.sleep(10)
+            await asyncio.sleep(word_quiz_config.SLEEP_BETWEEN_CHECKS_SECONDS)
         except KeyboardInterrupt:
             logger.info("Stopping update checks...")
             break
     
-    logger.info("30 minute update period completed.")
+    if not telegram_response:
+        logger.info("No user response within %d seconds.", word_quiz_config.WAIT_FOR_REPLY_SECONDS)
+        await notifier.send_message(
+            msg=f"⏱️ No reply received. We’ll try again next time.",
+            chat_id=TELEGRAM_USER_ID,
+        )
+        return
     
     user_answers = telegram_response[0].split(", ")
 
