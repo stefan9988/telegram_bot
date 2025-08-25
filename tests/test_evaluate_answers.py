@@ -15,7 +15,7 @@ def test_all_correct_ignores_spaces_and_case():
 
     # 4 comparisons, no size-mismatch line
     assert len(lns) == 4
-    assert all("✅ correct" in ln for ln in lns)
+    assert all("✅" in ln for ln in lns)
     # numbered 1..4
     assert lns[0].startswith("1.")
     assert lns[-1].startswith("4.")
@@ -27,10 +27,10 @@ def test_flags_incorrect_word_at_position():
     out = evaluate_answers(correct, user)
     lns = lines(out)
 
-    assert "✅ correct" in lns[0]
-    assert "✅ correct" in lns[1]
-    assert "❌ incorrect" in lns[2]   # only the 3rd differs
-    assert "✅ correct" in lns[3]
+    assert "✅" in lns[0]
+    assert "✅" in lns[1]
+    assert "❌" in lns[2]   # only the 3rd differs
+    assert "✅" in lns[3]
 
 def test_list_size_mismatch_when_user_has_fewer():
     correct = ['alchemy', 'tenacity', 'vicissitude', 'insatiability']
@@ -41,7 +41,7 @@ def test_list_size_mismatch_when_user_has_fewer():
 
     # min_len comparisons + 1 mismatch line
     assert len(lns) == 3
-    assert "✅ correct" in lns[0] and "✅ correct" in lns[1]
+    assert "✅" in lns[0] and "✅" in lns[1]
     assert "List size mismatch:" in lns[2]
     # counts in the message are correct
     assert re.search(r"4 .* vs 2 .*", lns[2])
@@ -54,7 +54,7 @@ def test_list_size_mismatch_when_user_has_more():
     lns = lines(out)
 
     assert len(lns) == 3
-    assert "✅ correct" in lns[0] and "✅ correct" in lns[1]
+    assert "✅" in lns[0] and "✅" in lns[1]
     assert "List size mismatch:" in lns[2]
     assert re.search(r"2 .* vs 3 .*", lns[2])
 
